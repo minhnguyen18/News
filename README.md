@@ -26,6 +26,6 @@ A modern Android news application built with **MVP architecture**, **Jetpack Com
 | **DI**             | (To be implemented) |
 
 ## Design
-<p align="center">
-  <img src="app_design.png" alt="App Design" width="30%"/>
+<p>
+  <img src="app_design.png" alt="App Design" width="700" style="margin-right: 100px;"/>
 </p>
