@@ -1,0 +1,271 @@
+package com.example.news.view.home
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.example.news.R
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.lazy.LazyRow
+import com.example.news.model.model.NewsArticle
+
+
+@Composable
+fun HomeScreen(viewModel: NewsViewModel = viewModel(),
+               onReadMoreClick: (NewsArticle) -> Unit) {
+    val articles by viewModel.articles
+    val latestArticles = articles.take(3)
+    val featuredArticles = if (articles.size > 3) articles.drop(3) else emptyList()
+
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("NEWS", fontSize = 18.sp, fontWeight = FontWeight.Black)
+                Icon(Icons.Default.Person, contentDescription = "Profile")
+            }
+        }
+
+        item {
+            Text("Hey, Minh!", fontSize = 16.sp, color = Color.Gray)
+            Text(
+                "Find the Latest\nUpdates",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 32.sp
+            )
+        }
+
+        item { FlatSearchBar() }
+
+        item {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                CategoryIcon("Tech", R.drawable.tech_icon)
+                CategoryIcon("Startups", R.drawable.startup_icon)
+                CategoryIcon("Crypto", R.drawable.crypto_icon)
+                CategoryIcon("Business", R.drawable.business_icon)
+            }
+        }
+        // Swipe "Latest News"
+        item {
+            Text("Latest News", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0077CC))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(latestArticles) { article ->
+                    SwipeableNewsItem(
+                        title = article.title,
+                        imageUrl = article.urlToImage,
+                        author = article.author ?: "Unknown",
+                        timeAgo = article.publishedAtRelative ?: "5 hours ago"
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+        item {
+            Text("Featured Stories", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0077CC))
+        }
+
+        if (articles.isEmpty()) {
+            item {
+                Text("⚠ No news available or API failed.", color = Color.Red)
+            }
+        } else {
+            items(featuredArticles) { article ->
+                NewsItem(article.title, article.urlToImage, onClick = {onReadMoreClick(article)})
+            }
+        }
+    }
+}
+
+@Composable
+fun FlatSearchBar() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .drawBehind {
+                val strokeWidth = 1.dp.toPx()
+                drawLine(
+                    color = Color.Gray,
+                    start = Offset(0f, size.height),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = strokeWidth
+                )
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            "Search for News",
+            color = Color.Gray,
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .weight(1f)
+        )
+        Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = "Search",
+            tint = Color.Gray,
+            modifier = Modifier.padding(8.dp)
+        )
+    }
+}
+
+@Composable
+fun CategoryIcon(label: String, iconRes: Int) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Surface(
+            shape = CircleShape,
+            color = Color.LightGray,
+            modifier = Modifier.size(56.dp),
+            tonalElevation = 2.dp
+        ) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                Icon(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = label,
+                    modifier = Modifier.size(28.dp),
+                    tint = Color.Black
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(label, fontSize = 12.sp)
+    }
+}
+@Composable
+fun SwipeableNewsItem(title: String, imageUrl: String?, author: String, timeAgo: String) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .width(280.dp)
+            .height(220.dp)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (!imageUrl.isNullOrEmpty()) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Gray)
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.Bottom
+            ) {
+                Text(
+                    text = title,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = author, color = Color.White, fontSize = 10.sp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = timeAgo, color = Color.White, fontSize = 10.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NewsItem(title: String, imageUrl: String?, onClick: () -> Unit) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 8.dp)) {
+        if (!imageUrl.isNullOrBlank()) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(RoundedCornerShape(6.dp)),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Surface(
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(RoundedCornerShape(6.dp)),
+                color = Color.Gray
+            ) {}
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                "Read news",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .clickable { onClick() }
+            )
+        }
+    }
+}
+
+
