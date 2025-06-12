@@ -37,6 +37,11 @@ fun AppNavGraph(
                 onReadMoreClick = { article ->
                     viewModel.selectArticle(article)
                     navController.navigate(Screen.Detail.route)
+                },
+                onLogoutClick = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
                 }
             )
         }

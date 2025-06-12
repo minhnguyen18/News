@@ -32,11 +32,17 @@ import com.example.news.R
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.lazy.LazyRow
 import com.example.news.model.model.NewsArticle
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 
 
 @Composable
 fun HomeScreen(viewModel: NewsViewModel = viewModel(),
-               onReadMoreClick: (NewsArticle) -> Unit) {
+               onReadMoreClick: (NewsArticle) -> Unit,
+               onLogoutClick: () -> Unit) {
     val articles by viewModel.articles
     val latestArticles = articles.take(3)
     val featuredArticles = if (articles.size > 3) articles.drop(3) else emptyList()
@@ -56,7 +62,25 @@ fun HomeScreen(viewModel: NewsViewModel = viewModel(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("NEWS", fontSize = 18.sp, fontWeight = FontWeight.Black)
-                Icon(Icons.Default.Person, contentDescription = "Profile")
+                var expanded by remember { mutableStateOf(false) }
+                Box{
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(Icons.Default.Person, contentDescription = "Profile")
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Logout") },
+                            onClick = {
+                                expanded = false
+                                onLogoutClick()
+                            }
+                        )
+                    }
+                }
+
             }
         }
 
@@ -94,7 +118,8 @@ fun HomeScreen(viewModel: NewsViewModel = viewModel(),
                         title = article.title,
                         imageUrl = article.urlToImage,
                         author = article.author ?: "Unknown",
-                        timeAgo = article.publishedAtRelative ?: "5 hours ago"
+                        timeAgo = article.publishedAtRelative ?: "5 hours ago",
+                        onClick = { onReadMoreClick(article)}
                     )
                 }
             }
@@ -173,12 +198,13 @@ fun CategoryIcon(label: String, iconRes: Int) {
     }
 }
 @Composable
-fun SwipeableNewsItem(title: String, imageUrl: String?, author: String, timeAgo: String) {
+fun SwipeableNewsItem(title: String, imageUrl: String?, author: String, timeAgo: String, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .width(280.dp)
             .height(220.dp)
+            .clickable { onClick()}
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             if (!imageUrl.isNullOrEmpty()) {
@@ -206,14 +232,14 @@ fun SwipeableNewsItem(title: String, imageUrl: String?, author: String, timeAgo:
                     text = title,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
+                    fontSize = 12.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
 
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = author, color = Color.White, fontSize = 10.sp)
+                   // Text(text = author, color = Color.White, fontSize = 10.sp)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = timeAgo, color = Color.White, fontSize = 10.sp)
                 }
