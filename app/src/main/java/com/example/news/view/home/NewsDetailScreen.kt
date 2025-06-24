@@ -26,10 +26,11 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import com.example.news.model.model.BaseArticle
 
 @Composable
 fun NewsDetailScreen(
-    article: NewsArticle,
+    article: BaseArticle,
     navController: NavController
 ) {
     val context = LocalContext.current

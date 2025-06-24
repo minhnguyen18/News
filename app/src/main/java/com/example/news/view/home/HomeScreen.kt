@@ -31,11 +31,24 @@ import coil.compose.AsyncImage
 import com.example.news.R
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material.icons.filled.FavoriteBorder
 import com.example.news.model.model.NewsArticle
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Star
+import androidx.navigation.NavHostController
+import com.example.news.model.network.NYTApiService
+import com.example.news.model.repository.NYTRepository
+import com.example.news.presenter.NYTPresenter
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
 
@@ -61,7 +74,7 @@ fun HomeScreen(viewModel: NewsViewModel = viewModel(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("NEWS", fontSize = 18.sp, fontWeight = FontWeight.Black)
+                Text("NEWS API", fontSize = 18.sp, fontWeight = FontWeight.Black)
                 var expanded by remember { mutableStateOf(false) }
                 Box{
                     IconButton(onClick = { expanded = true }) {
@@ -294,4 +307,94 @@ fun NewsItem(title: String, imageUrl: String?, onClick: () -> Unit) {
     }
 }
 
+@Composable
+fun MainScreen(
+    navController: NavHostController,
+    viewModel: NewsViewModel,
+    nytViewModel: NYTViewModel
+) {
+    val bottomNavController = rememberNavController()
+    val navItems = listOf("home", "pages", "highlights")
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                val currentRoute = bottomNavController.currentBackStackEntryAsState().value?.destination?.route
+                navItems.forEach { route ->
+                    NavigationBarItem(
+                        icon = {
+                            when (route) {
+                                "home" -> Icon(Icons.Default.Home, contentDescription = null)
+                                "pages" -> Icon(Icons.Default.Star, contentDescription = null)
+                                "highlights" -> Icon(Icons.Default.FavoriteBorder, contentDescription = null)
+                            }
+                        },
+                        label = { Text(route.replaceFirstChar { it.uppercaseChar() }) },
+                        selected = currentRoute == route,
+                        onClick = {
+                            bottomNavController.navigate(route) {
+                                popUpTo(bottomNavController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = bottomNavController,
+            startDestination = "home",
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable("home") {
+                HomeScreen(
+                    viewModel = viewModel,
+                    onReadMoreClick = { article ->
+                        viewModel.selectArticle(article)
+                        navController.navigate("detail")
+                    },
+                    onLogoutClick = {
+                        navController.navigate("login") {
+                            popUpTo("main") { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            composable("pages") {
+
+                PagesScreen(viewModel = nytViewModel,
+                    onReadMoreClick = { article ->
+                        nytViewModel.selectArticle(article)
+                        navController.navigate("nyt_detail")
+                    })
+            }
+
+
+            composable("highlights") {
+                HighlightsScreen()
+            }
+        }
+    }
+}
+@Composable
+fun PagesScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Pages Screen", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    }
+}
+@Composable
+fun HighlightsScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Highlights Screen", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    }
+}
 

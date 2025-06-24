@@ -1,14 +1,14 @@
 package com.example.news.model.model
 
 data class NewsArticle(
-    val title: String,
-    val urlToImage: String?,
-    val description: String?,
-    val content: String?,
-    val author: String? = null,
-    val publishedAt: String = "",
-    val url: String?
-) {
+    override val title: String,
+    override val urlToImage: String?,
+    override val description: String?,
+    override val content: String?,
+    override val author: String? = null,
+    override val publishedAt: String = "",
+    override val url: String?
+) : BaseArticle {
     val publishedAtRelative: String
         get() = "5 hours ago"
 }
