@@ -21,6 +21,10 @@ import com.example.news.model.network.NYTApiClient
 import com.example.news.model.repository.NYTRepository
 import com.example.news.presenter.NYTPresenter
 import com.example.news.view.home.PagesScreen
+import com.example.news.view.home.SportScreen
+import com.example.news.model.network.NewsApiClient
+import com.example.news.model.network.NewsApiService
+
 
 
 sealed class Screen(val route: String) {
@@ -29,6 +33,7 @@ sealed class Screen(val route: String) {
     object Pages : Screen("pages")
     object Detail : Screen("detail")
     object NYTDetail : Screen("nyt_detail")
+    object Sports : Screen("sports")
 }
 
 @Composable
@@ -88,9 +93,14 @@ fun AppNavGraph(
             }
         }
 
+        composable(Screen.Sports.route) {
+            SportScreen(
+                apiKey = apiKey,
+                onReadMoreClick = { /* handle read more if needed */ }
+            )
+        }
+
 
 
     }
 }
-
-

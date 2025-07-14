@@ -45,6 +45,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
 import androidx.navigation.NavHostController
 import com.example.news.model.network.NYTApiService
+import com.example.news.model.network.NewsApiClient
+import com.example.news.model.network.NewsApiService
 import com.example.news.model.repository.NYTRepository
 import com.example.news.presenter.NYTPresenter
 import retrofit2.Retrofit
@@ -314,7 +316,8 @@ fun MainScreen(
     nytViewModel: NYTViewModel
 ) {
     val bottomNavController = rememberNavController()
-    val navItems = listOf("home", "pages", "highlights")
+    val navItems = listOf("home", "pages", "sports")
+    val apiKey = "vPW25PAIVsZPBx55l3F0wGPUiXEX88LZ"
 
     Scaffold(
         bottomBar = {
@@ -326,7 +329,7 @@ fun MainScreen(
                             when (route) {
                                 "home" -> Icon(Icons.Default.Home, contentDescription = null)
                                 "pages" -> Icon(Icons.Default.Star, contentDescription = null)
-                                "highlights" -> Icon(Icons.Default.FavoriteBorder, contentDescription = null)
+                                "sports" -> Icon(Icons.Default.FavoriteBorder, contentDescription = null)
                             }
                         },
                         label = { Text(route.replaceFirstChar { it.uppercaseChar() }) },
@@ -362,19 +365,19 @@ fun MainScreen(
                     }
                 )
             }
-
             composable("pages") {
-
                 PagesScreen(viewModel = nytViewModel,
                     onReadMoreClick = { article ->
                         nytViewModel.selectArticle(article)
                         navController.navigate("nyt_detail")
-                    })
+                    }
+                )
             }
-
-
-            composable("highlights") {
-                HighlightsScreen()
+            composable("sports") {
+                SportScreen(
+                    apiKey = "7d760c25a4b74092a053a8262f2b48a4",
+                    onReadMoreClick = { /* handle read more if needed */ }
+                )
             }
         }
     }
@@ -388,13 +391,3 @@ fun PagesScreen() {
         Text("Pages Screen", fontSize = 20.sp, fontWeight = FontWeight.Bold)
     }
 }
-@Composable
-fun HighlightsScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Highlights Screen", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-    }
-}
-
