@@ -100,7 +100,7 @@ fun HomeScreen(viewModel: NewsViewModel = viewModel(),
         }
 
         item {
-            Text("Hey, Minh!", fontSize = 16.sp, color = Color.Gray)
+            Text("Hey!!!", fontSize = 16.sp, color = Color.Gray)
             Text(
                 "Find the Latest\nUpdates",
                 fontSize = 28.sp,

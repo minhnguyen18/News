@@ -11,6 +11,7 @@ import com.example.news.view.detail.NewsDetailScreen
 import com.example.news.view.home.NewsViewModel
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.news.model.model.BaseArticle
@@ -24,7 +25,8 @@ import com.example.news.view.home.PagesScreen
 import com.example.news.view.home.SportScreen
 import com.example.news.model.network.NewsApiClient
 import com.example.news.model.network.NewsApiService
-
+import com.example.news.presenter.impl.AuthPresenterImpl
+import com.example.news.view.login.RegisterScreen
 
 
 sealed class Screen(val route: String) {
@@ -51,6 +53,8 @@ fun AppNavGraph(
             apiKey = apiKey
         )
     )
+    val loginPresenter = remember { AuthPresenterImpl() }
+    val registerPresenter = remember { AuthPresenterImpl() }
 
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(Screen.Login.route) {
@@ -58,7 +62,22 @@ fun AppNavGraph(
                 navController.navigate(Screen.Main.route) {
                     popUpTo(Screen.Login.route) { inclusive = true }
                 }
+            },
+            onRegisterClick = {
+                navController.navigate("register")
             })
+        }
+        composable("register") {
+            RegisterScreen(
+                presenter = registerPresenter,
+                onBackClick = { navController.popBackStack() },
+                onRegisterSuccess = {
+                    // Navigate to login or main screen after success
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable(Screen.Main.route) {
