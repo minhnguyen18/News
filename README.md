@@ -6,15 +6,15 @@
 
 A modern Android news application built with **MVP architecture**, **Jetpack Compose**, and **Retrofit** that fetches real-time news from [NewsAPI.org](https://newsapi.org).
 
-## 🎯 Features
+## Features
 
-- 🌍 Fetch top headlines by country
-- 📰 View article details with images
-- 🔍 Search functionality (to be implemented)
-- 💾 Bookmark articles (to be implemented)
-- 🎨 Dark/Light theme support
+- Fetch top headlines by country
+- View article details with images
+- Search functionality (to be implemented)
+- Bookmark articles (to be implemented)
+- Dark/Light theme support
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Component          | Technology |
 |--------------------|------------|
